@@ -10,5 +10,6 @@ sprite = NodePath("image")
 format = 2
 
 [node name="image" type="Sprite2D" parent="."]
+texture_filter = 1
 position = Vector2(593.315, 303.355)
-scale = Vector2(5, 5)
+scale = Vector2(10, 10)

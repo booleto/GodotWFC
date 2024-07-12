@@ -10,6 +10,11 @@ var encoded_image: Wave = PackedWave.new()
 var ruleset: WFCRuleset = WFCRuleset.new()
 
 
+func _init(img: Image, kernel_size: int=3):
+	self.load_image(img)
+	self.kernel_size = kernel_size
+
+
 func generate(distribution, output_size: Vector2, kernel_size: int):
 	pass
 
@@ -29,18 +34,21 @@ func infer_rules() -> WFCRuleset:
 
 	for x in range(encoded_image.size.x): # loop through every pixels in the image
 		for y in range(encoded_image.size.y):
-			var x_range = Vector2(x - kernel_size, x + kernel_size) # exclude edges
-			var y_range = Vector2(y - kernel_size, y + kernel_size)
-			x_range.clamp(Vector2(0, 0), max_x)
-			y_range.clamp(Vector2(0, 0), max_y)
+			var x_range = Vector2(x - kernel_center.x, x + kernel_center.x + 1) # exclude edges
+			var y_range = Vector2(y - kernel_center.y, y + kernel_center.y + 1)
+			x_range = x_range.clamp(Vector2(0, 0), max_x)
+			y_range = y_range.clamp(Vector2(0, 0), max_y)
+			# prints("(x, y): ", x, y)
 
 			var center_tile: int = encoded_image.get_value(x, y, 0)
 			for i in range(x_range[0], x_range[1]): # loop through pixels in a kernel centered around each pixels
 				for j in range(y_range[0], y_range[1]):
 					if Vector2(x, y) == Vector2(i, j): continue
 					var kernel_tile: int = encoded_image.get_value(i, j, 0)
-					direction = Vector2(x, y) - Vector2(i, j)
-					ruleset.mod_rule_data(center_tile, kernel_tile, direction, WFCRuleset.TRUE)
+					direction = Vector2(i, j) - Vector2(x, y)
+					var wave_val: int = ruleset.get_rule_val(center_tile, kernel_tile, direction)
+					# prints("\t(i, j): ", i, j, " with val: ", wave_val)
+					ruleset.mod_rule_data(center_tile, kernel_tile, direction, wave_val + 1)
 		
 	return ruleset
 

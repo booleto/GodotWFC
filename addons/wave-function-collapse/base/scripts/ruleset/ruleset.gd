@@ -18,12 +18,14 @@ func add_rule_data(data: PackedWave):
 
 
 func mod_rule_data(from: int, to:int, position: Vector2, value):
-	position += self._get_kernel_center()
+	print("OH SHIT MODDED")
+	position = position + self._get_kernel_center()
 	rule_data[from].set_value(position.x, position.y, to, value)
 
 
 func initialize_rule_data(tile_count: int, kernel_size: int):
 	assert(kernel_size % 2 == 1, "Even kernel size")
+	self.kernel_size = kernel_size
 	for i in range(tile_count):
 		var rule = PackedWave.new()
 		var center = int(kernel_size / 2)
@@ -33,10 +35,18 @@ func initialize_rule_data(tile_count: int, kernel_size: int):
 		self.add_rule_data(rule)
 
 
+func get_rule_val(origin_tile: int, checked_tile: int, direction: Vector2) -> int:
+	# prints("CHECKED: ", direction.x, direction.y)
+	direction += self._get_kernel_center()
+	# prints("CHECKED: ", direction.x, direction.y)
+	return rule_data[origin_tile].get_value(direction.x, direction.y, checked_tile)
+
+
 func is_tile_valid(origin_tile: int, checked_tile: int, check_pos: Vector2) -> bool:
 	check_pos += self._get_kernel_center()
-	var result = rule_data[origin_tile].get_value(check_pos.x, check_pos.y, checked_tile)
-	return result == TRUE
+	# var result = rule_data[origin_tile].get_value(check_pos.x, check_pos.y, checked_tile)
+	var result = get_rule_val(origin_tile, checked_tile, check_pos)
+	return result != FALSE
 
 
 func apply_rules(wave: Wave, position) -> PackedVector2Array: #returns changed positions
